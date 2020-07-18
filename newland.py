@@ -43,12 +43,16 @@ def get_pic():
 
 
 def upload_pic(command):
-    pic = get_pic()
-    myupload(pic)
+    try:
+        pic = get_pic()
+        myupload(pic)
+        status = 0
+    except Exception as e:
+        status = 1	# 1 for failed, 0 for success
     print(command['cmdid'])
     reply = command
     reply['t'] = 6
-    reply['status'] = 0
+    reply['status'] = status
     reply['data'] = 'https://newlandiot-1300406808.cos.ap-shanghai.myqcloud.com/' + pic
     try:
         tcp_client.send(json.dumps(reply).encode())       #发送数据
