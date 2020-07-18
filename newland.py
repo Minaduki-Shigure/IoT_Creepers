@@ -1,8 +1,8 @@
 # -*- coding:utf-8 -*-
-# @ProjectName  :DiseaseDemo
-# @FileName     :tcp_cloud_demo.py
-# @Time         :20-5-27
-# @Author       :EricLin
+# @ProjectName  :IoTCreepers
+# @FileName     :newland.py
+# @Time         :20-7-19
+# @Author       :Minaduki
 
 import socket
 import json
@@ -11,12 +11,13 @@ import random
 from threading import Thread
 
 from cos import myupload
+from meter_utils import get_rad, get_img
 
 
 host = "117.78.1.201" #AIOT云平台tcp连接host地址
 port = 8700           #AIOT云平台tcp连接port
 
-
+meters = ['meter_01', 'meter_02', 'meter_03']
 
 def socket_client(host,port):
     ''''
@@ -38,22 +39,19 @@ def socket_client(host,port):
     return tcp_client                #返回socket对象
 
 
-def get_pic():
-    return 'wallpaper.png'
-
-
-def upload_pic(command):
+def upload_img(command):
     try:
-        pic = get_pic()
-        myupload(pic)
+        img = get_img()
+        myupload(img)
         status = 0
     except Exception as e:
+        print(e)
         status = 1	# 1 for failed, 0 for success
-    print(command['cmdid'])
+    # print(command['cmdid'])
     reply = command
     reply['t'] = 6
     reply['status'] = status
-    reply['data'] = 'https://newlandiot-1300406808.cos.ap-shanghai.myqcloud.com/' + pic
+    reply['data'] = 'https://newlandiot-1300406808.cos.ap-shanghai.myqcloud.com/' + img
     try:
         tcp_client.send(json.dumps(reply).encode())       #发送数据
     except Exception as e:
@@ -73,7 +71,7 @@ def listen_server(socket_obj):
                 exit()
             if res != '$OK##\r':
                 command = json.loads(res)
-                upload_pic(command)
+                upload_img(command)
             if 0:
                 exit()
         except Exception as e:
@@ -97,58 +95,41 @@ def tcp_ping(socket_obj):
             exit()
 
 
-
-def send_temperature(tcp_client,num):
-    '''
-
-    :param tcp_client: socket对象
-    :param num: 体温数据
-    :return:
-    '''
-    if num > 37.3:
-        data = {
-            "t": 3,                                      #固定数字,代表数据上报
-            "datatype": 1,                               #数据上报格式类型
-            "datas": {
-                "temperature": num,                      #体温数据
-                "expect_temperature": num,               #异常体温数据
-            },
-            "msgid": str(random.randint(100,100000))     #消息编号
-        }
-    else:
-        data = {
-            "t": 3,
-            "datatype": 1,
-            "datas": {
-                "temperature": num,
-            },
-            "msgid": str(random.randint(100,100000))
-        }
-    try:
-        tcp_client.send(json.dumps(data).encode())       #发送数据
-    except Exception as e:
-        print(e)
-#发送口罩数据方法
-def send_mask_data(tcp_client,val):
+def send_meter_value(tcp_client, meter, value):
     data = {
-        "t": 3,                                   #固定数字,代表数据上报
-        "datatype": 1,                            #数据上报格式类型
+        "t": 3,
+        "datatype" : 1,
         "datas": {
-            "is_mask": val,                       #口罩数据
+            meter: value,
         },
-        "msgid": str(random.randint(100,100000))  #消息编号
+        "msgid": str(random.randint(100,100000))
     }
     try:
-        tcp_client.send(json.dumps(data).encode()) #发送数据
+        tcp_client.send(json.dumps(data).encode())
     except Exception as e:
         print(e)
+        return False
 
 
+def meter_recognize_daemon(tcp_client):
+    while True:
+	for meter in meters:
+            val, paras, img = Recognition(meter, type='CAMERA')
+            if not val:
+                print("Fail to recognize the value of meter!")
+                exit()
+            send_meter_value(tcp_client, meter, value)
+            time.sleep(0.2)
+        # print("Send: ",meter_list[0], val)
+        # result_show(paras, img)
+        time.sleep(2.4)
 
 
 if __name__ == "__main__":
     tcp_client = socket_client(host,port)                  #创建tcp　sockt 对象
-    t1 = Thread(target=listen_server, args=(tcp_client,))  #监听服务端发送数据
-    t1.start()
-    t2 = Thread(target=tcp_ping, args=(tcp_client,))       #创建与云平台保持心跳的线程
-    t2.start()
+    tcp_listen = Thread(target=listen_server, args=(tcp_client,))  #监听服务端发送数据
+    tcp_listen.start()
+    tcp_heartbeat = Thread(target=tcp_ping, args=(tcp_client,))       #创建与云平台保持心跳的线程
+    tcp_heartbeat.start()
+    recgnd = Thread(target=meter_recognize_daemon, args=(tcp_client,))
+    recgnd.start()
