@@ -12,6 +12,7 @@ cap = cv2.VideoCapture(0)
 
 
 def socket_server():
+	# print('socket_server')
 	serverSocket = socket(AF_INET, SOCK_STREAM)
 	serverSocket.bind(('127.0.0.1', serverPort))	
 	serverSocket.listen(10)
@@ -23,6 +24,7 @@ def socket_server():
 
 
 def capture_once(cap, filename):
+	# print('capture_once')
 	try:
 		success, frame = cap.read()
 		cv2.imwrite(filename, frame)
@@ -31,6 +33,7 @@ def capture_once(cap, filename):
 
 
 def send_picture(connSocket):
+	# print('send_picture')
 	filename = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + '.png'
 	capture_once(cap, filename)
 
@@ -48,9 +51,11 @@ def send_picture(connSocket):
 
 	
 def capture_daemon(connSocket, addr):
+	# print('capture_daemon')
 	try:
 		send_picture(connSocket)
 		connSocket.close()
+		# print('closed')
 	except Exception as e:
 		print(e) # Logging
 
