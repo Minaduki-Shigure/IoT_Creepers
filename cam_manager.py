@@ -73,6 +73,9 @@ class CamServer:
 
 
 if __name__ == '__main__':
+    '''
+    Test code
+    '''
     camManager = CamManager(['127.0.0.1'])
     picList = camManager.request_all()
     print(picList)

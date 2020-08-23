@@ -3,10 +3,11 @@
 # @FileName     :newland_handler.py
 # @Time         :20-7-19
 # @Author       :Minaduki
-from socket import *
+
 import json
 import time
 import random
+from socket import *
 from threading import Thread
 
 from cos import myupload
@@ -25,9 +26,10 @@ class NewLandHandler:
     __host = "117.78.1.201" #AIOT云平台tcp连接host地址
     __port = 8700           #AIOT云平台tcp连接port
 
-    def __init__(self, handshare_data):
+    def __init__(self, handshare_data, get_pic):
         super().__init__()
         try:
+            self.get_pic = get_pic
             self.__clientSocket.connect((self.__host,self.__port))                                #建立tcp连接
             self.__clientSocket.send(json.dumps(handshare_data).encode())           #发送云平台连接请求
             resMsg = self.__clientSocket.recv(1024).decode()   
@@ -73,7 +75,7 @@ class NewLandHandler:
     def __upload_pic(self, command):
         try:
             #pic = brokerObj.get_pic()
-            pic = get_pic()
+            pic = self.get_pic()
             myupload(pic)
             status = 0
         except Exception as e:
@@ -105,7 +107,7 @@ class NewLandHandler:
             return False
 
 
-def get_pic():
+def get_pic_test():
     return camManager.request_all()[0]
 
 
@@ -114,5 +116,5 @@ if __name__ == "__main__":
     Test code
     '''
     camManager = CamManager(['127.0.0.1'])
-    newLandd = NewLandHandler(handshare_data)
+    newLandd = NewLandHandler(handshare_data, get_pic_test)
     newLandd.update_value('127.0.0.1', 10086)
