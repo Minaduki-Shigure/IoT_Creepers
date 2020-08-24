@@ -9,6 +9,7 @@ import random
 
 from newland_handler import NewLandHandler, handshare_data_test
 from cam_manager import CamManager
+from meter_utils import ImgRecgnition
 
 camList = ['127.0.0.1', '192.168.3.13']
 meterList = ['meter_1', 'meter_2', 'meter_3']
@@ -22,7 +23,8 @@ def get_pic_by_index(index):
 
 
 def recg(filename):
-    return random.randint(0, 10)
+    imgRecg = ImgRecgnition(filename)
+    return imgRecg.get_meter(), imgRecg.get_pic_processed()
 
 
 if __name__ == '__main__':
@@ -31,9 +33,6 @@ if __name__ == '__main__':
     while True:
         time.sleep(1)
         for meter in meterList:
-            value = recg(get_pic_by_index(meterDict[meter]))
+            value, pic = recg(get_pic_by_index(meterDict[meter]))
             newLandd.update_value(meter, value)
             time.sleep(0.5)
-
-
-
