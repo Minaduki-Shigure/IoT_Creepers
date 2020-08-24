@@ -9,6 +9,10 @@ import cv2
 
 serverPort = 11451
 cap = cv2.VideoCapture(0)
+# cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)
+cap.set(cv2.CAP_PROP_FPS, 1)
+
+frame = []
 
 
 def socket_server():
@@ -17,16 +21,19 @@ def socket_server():
 	serverSocket.bind(('', serverPort))	
 	serverSocket.listen(10)
 
+	captured = Thread(target = capture_daemon)
+	captured.start()
+
 	while True:
 		connSocket, addr = serverSocket.accept()
-		newClient = Thread(target = capture_daemon, args = (connSocket, addr))
+		newClient = Thread(target = capture_server, args = (connSocket, addr))
 		newClient.start()
 
 
 def capture_once(cap, filename):
 	# print('capture_once')
 	try:
-		success, frame = cap.read()
+		# success, frame = cap.read()
 		cv2.imwrite(filename, frame)
 	except Exception as e:
 		print(e) # Logging
@@ -51,7 +58,7 @@ def send_picture(connSocket):
 		connSocket.send(data)
 
 	
-def capture_daemon(connSocket, addr):
+def capture_server(connSocket, addr):
 	# print('capture_daemon')
 	try:
 		send_picture(connSocket)
@@ -60,6 +67,11 @@ def capture_daemon(connSocket, addr):
 	except Exception as e:
 		print(e) # Logging
 
+
+def capture_daemon():
+	while True:
+		global frame
+		success, frame = cap.read()
 
 if __name__ == '__main__':
 	socket_server()

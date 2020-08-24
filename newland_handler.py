@@ -19,6 +19,12 @@ handshare_data = {
         "key": "c5cab3c5ebb04116accac802545005d0",
         "ver": "v1.0"}                             #客户端代码版本号,可以是自己拟定的一组客户端代码版本号值
 
+handshare_data_test = {
+        "t": 1,                                    #固定数据代表连接请求
+        "device": "Player",                       #设备标识
+        "key": "84d1a6f1fec04f12b60cfb9b83b297e4", #传输密钥
+        "ver": "v1.0"}       
+
 
 class NewLandHandler:
 
@@ -76,7 +82,7 @@ class NewLandHandler:
         try:
             #pic = brokerObj.get_pic()
             pic = self.get_pic()
-            keyupload(pic, command['cmdid'])
+            keyupload(pic, command['cmdid'] + '.png')
             status = 0
         except Exception as e:
             print(e)
@@ -115,6 +121,6 @@ if __name__ == "__main__":
     '''
     Test code
     '''
-    camManager = CamManager(['192.168.1.32'])
-    newLandd = NewLandHandler(handshare_data, get_pic_test)
+    camManager = CamManager(['192.168.1.35'])
+    newLandd = NewLandHandler(handshare_data_test, get_pic_test)
     newLandd.update_value('127.0.0.1', 10086)
