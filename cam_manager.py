@@ -44,10 +44,10 @@ class CamServer:
         return filename
 
     def __data_recv(self):
-        fileinfo_size = struct.calcsize('128sl')
+        fileinfo_size = struct.calcsize('=128sl')
         buf = self.__clientSocket.recv(fileinfo_size)
         if buf:
-            filename, filesize = struct.unpack('128sl', buf)
+            filename, filesize = struct.unpack('=128sl', buf)
             fn = filename.decode().strip('\00')
             fn = self.__camAddr + '_' + fn
             filepath = os.path.join('./', fn)
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     '''
     Test code
     '''
-    camManager = CamManager(['127.0.0.1'])
+    camManager = CamManager(['192.168.1.32'])
     picList = camManager.request_all()
     print(picList)
     print(camManager.request_all())
