@@ -26,5 +26,14 @@ def myupload(filename):
 	)
 	# print(response['ETag'])
 
+def keyupload(filename, key):
+	response = client.put_object_from_local_file(
+		Bucket='newlandiot-1300406808',
+		LocalFilePath=filename,
+		Key=key,
+	)
+	# print(response['ETag'])
+
 if __name__ == '__main__':
-	myupload('1.txt')
+	# myupload('1.txt')
+	keyupload('wp.png', '1-3-2')

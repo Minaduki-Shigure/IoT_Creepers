@@ -10,13 +10,13 @@ import random
 from socket import *
 from threading import Thread
 
-from cos import myupload
+from cos import keyupload
 from cam_manager import *
 
 handshare_data = {
         "t": 1,                                    #固定数据代表连接请求
-        "device": "Player",                       #设备标识
-        "key": "84d1a6f1fec04f12b60cfb9b83b297e4", #传输密钥
+        "device": "nju_iot",                 
+        "key": "c5cab3c5ebb04116accac802545005d0",
         "ver": "v1.0"}                             #客户端代码版本号,可以是自己拟定的一组客户端代码版本号值
 
 
@@ -76,7 +76,7 @@ class NewLandHandler:
         try:
             #pic = brokerObj.get_pic()
             pic = self.get_pic()
-            myupload(pic)
+            keyupload(pic, command['cmdid'])
             status = 0
         except Exception as e:
             print(e)
@@ -115,6 +115,6 @@ if __name__ == "__main__":
     '''
     Test code
     '''
-    camManager = CamManager(['127.0.0.1'])
+    camManager = CamManager(['192.168.1.32'])
     newLandd = NewLandHandler(handshare_data, get_pic_test)
     newLandd.update_value('127.0.0.1', 10086)
