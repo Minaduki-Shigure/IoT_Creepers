@@ -4,8 +4,6 @@ import struct
 from socket import *
 from threading import Thread
 
-import cv2
-
 
 class CamManager:
 

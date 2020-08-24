@@ -41,6 +41,7 @@ def send_picture(connSocket):
     # 定义文件头信息，包含文件名和文件大小
 	fhead = struct.pack('128sl', bytes(os.path.basename(filename).encode('utf-8')), os.stat(filename).st_size)
 	connSocket.send(fhead)
+	# print(fhead)
 
 	fp = open(filename, 'rb')
 	while True:
