@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import struct
 from socket import *
 from threading import Thread
@@ -23,9 +24,13 @@ class CamManager:
             picList.append(instance.request_pic())
         return picList
 
+    def request(self, index):
+        return self.__instanceList[index].request_pic()
+
 
 class CamServer:
 
+    __busy = False
     __camPort = 11451
     # __clientSocket = socket(AF_INET, SOCK_STREAM)
     # Socket一旦关闭之后是不能复用的，即使client这边重新connect了，
@@ -37,10 +42,14 @@ class CamServer:
         self.__camAddr = camAddr
 
     def request_pic(self):
+        while self.__busy:
+            time.sleep(0.1)
+        self.__busy = True
         self.__clientSocket = socket(AF_INET, SOCK_STREAM)
         self.__clientSocket.connect((self.__camAddr, self.__camPort))
         filename = self.__data_recv()
         self.__clientSocket.close()
+        self.__busy = False
         return filename
 
     def __data_recv(self):

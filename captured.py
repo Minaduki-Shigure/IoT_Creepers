@@ -10,7 +10,7 @@ import cv2
 serverPort = 11451
 cap = cv2.VideoCapture(0)
 # cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)
-cap.set(cv2.CAP_PROP_FPS, 1)
+cap.set(cv2.CAP_PROP_FPS, 3)
 
 frame = []
 

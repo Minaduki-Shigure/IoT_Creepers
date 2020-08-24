@@ -81,7 +81,11 @@ class NewLandHandler:
     def __upload_pic(self, command):
         try:
             #pic = brokerObj.get_pic()
-            pic = self.get_pic()
+            if command['data'] == '2':
+                index = 1
+            else:
+                index = 0
+            pic = self.get_pic(index)
             keyupload(pic, command['cmdid'] + '.png')
             status = 0
         except Exception as e:
@@ -113,7 +117,7 @@ class NewLandHandler:
             return False
 
 
-def get_pic_test():
+def get_pic_test(index):
     return camManager.request_all()[0]
 
 
