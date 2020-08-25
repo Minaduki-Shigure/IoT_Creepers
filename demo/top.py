@@ -7,9 +7,10 @@
 import time
 import random
 
-from newland_handler import NewLandHandler, handshare_data_test
+from newland_handler import NewLandHandler, handshare_data, handshare_data_test
 from cam_manager import CamManager
 from meter_utils import ImgRecgnition
+from cos import myupload
 
 camList = ['192.168.1.35', '192.168.1.39']
 meterList = ['meter_01', 'meter_02', 'meter_03']
@@ -29,10 +30,19 @@ def recg(filename):
 
 if __name__ == '__main__':
     camManager = CamManager(camList)
-    newLandd = NewLandHandler(handshare_data_test, get_pic_by_index)
+    newLandd = NewLandHandler(handshare_data, get_pic_by_index)
     while True:
         time.sleep(1)
         for meter in meterList:
-            value, pic = recg(get_pic_by_index(meterDict[meter]))
-            newLandd.update_value(meter, value)
+            try:
+                value, pic = recg(get_pic_by_index(meterDict[meter]))
+                if meter == 'meter_02':                     
+                    pass
+                else:                                       
+                    value = value * 0.375                   
+                print(value)
+                # myupload(pic)
+                newLandd.update_value(meter, value)
+            except Exception as e:
+                pass
             time.sleep(1)
